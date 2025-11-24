@@ -51,16 +51,17 @@ app.post("/sendMessage", async (req, res) => {
 
     const message = {
       token: fcmToken,
-      notification: {
+      data: {
         title: fromUsername
           ? `Nuevo mensaje de ${fromUsername}`
           : "Nuevo mensaje",
-        body: text
-      },
-      data: {
+        body: text,
         toUsername,
         fromUsername: fromUsername || "",
         text
+      },
+      android: {
+        priority: "high"
       }
     };
 
