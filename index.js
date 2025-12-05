@@ -61,14 +61,15 @@ app.get("/health", (req, res) => {
 
 app.post("/sendMessage", async (req, res) => {
   try {
-    const { toUsername, text, fromUsername } = req.body;
-    if (!toUsername || !text) {
+    const { toUsername, text, fromUsername, messageId } = req.body;
+    if (!toUsername || !text || !messageId) {
       return res.status(400).json({ error: "Campos requeridos" });
     }
 
     const decToUsername = decryptBase64AesGcm(toUsername);
     const decText = decryptBase64AesGcm(text);
     const decFromUsername = fromUsername ? decryptBase64AesGcm(fromUsername) : "";
+    const decMessageId = decryptBase64AesGcm(messageId);
 
     const userDoc = await db.collection("users").doc(decToUsername).get();
     if (!userDoc.exists) {
@@ -83,6 +84,7 @@ app.post("/sendMessage", async (req, res) => {
     const encTo = encryptBase64AesGcm(decToUsername);
     const encFrom = encryptBase64AesGcm(decFromUsername);
     const encText = encryptBase64AesGcm(decText);
+    const encMessageId = encryptBase64AesGcm(decMessageId);
 
     const encTitle = encryptBase64AesGcm(
       decFromUsername
@@ -99,7 +101,8 @@ app.post("/sendMessage", async (req, res) => {
         body: encBody,
         toUsername: encTo,
         fromUsername: encFrom,
-        text: encText
+        text: encText,
+        messageId: encMessageId
       },
       android: {
         priority: "high"
@@ -123,4 +126,4 @@ app.post("/sendMessage", async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {});
+app.listen(PORT, () => { });
